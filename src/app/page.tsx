@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
 import styles from "@/app/page.module.scss";
+import { Button } from "@/components/ui/button";
+
 function Home() {
   return (
     <div className={styles.container}>
@@ -14,7 +15,7 @@ function Home() {
           variant={"outline"}
           className="w-full bg-transparent text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
         >
-          Add New Page
+          Add New page
         </Button>
       </div>
     </div>

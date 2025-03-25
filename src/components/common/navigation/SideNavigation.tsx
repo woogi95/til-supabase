@@ -10,7 +10,7 @@ function SideNavigation() {
       <div className={styles.container_searchBox}>
         <Input
           type="text"
-          placeholder="검색어를 입력하세요"
+          placeholder="검색어를 입력하세요."
           className="focus-visible:right"
         />
         <Button variant={"outline"} size={"icon"}>
