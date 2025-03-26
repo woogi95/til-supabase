@@ -1,11 +1,14 @@
 "use client";
+
+import { useState } from "react";
 // SCSS
 import styles from "@/components/common/dialog/MarkdownDialog.module.scss";
-import { Checkbox } from "@/components/ui/checkbox";
+
 // Markdown
 import MDEditor from "@uiw/react-md-editor";
 
 // shadcn/ui
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,16 +19,53 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+
+// 컴포넌트
 import LabelCalendar from "../calendar/LabelCalendar";
-import { useState } from "react";
+import { createTodo } from "@/app/actions/todos-action";
 
 function MarkdownDialog() {
-  // 에디터의 본문 내용
+  // 다이얼로그 props
+  const [open, setOpen] = useState<boolean>(false);
+  // 에디터의 제목/본문 내용
+  const [title, setTitle] = useState<string | undefined>("");
   const [content, setContent] = useState<string | undefined>("");
+
+  // todo 작성
+  const onSubmit = async () => {
+    if (!title || !content) {
+      toast.error("입력항목을 확인해 주세요.", {
+        description: "제목과 내용을 입력해주세요.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // 서버액션 실행하기
+    const { data, error, status } = await createTodo({
+      content: content,
+      title: title,
+    });
+
+    if (error) {
+      toast.error("등록 실패.", {
+        description: `Error ${error.message}`,
+        duration: 3000,
+      });
+      return;
+    }
+
+    toast.success("성공하였습니다.", {
+      description: "Supabase에 글이 등록되었습니다.",
+      duration: 3000,
+    });
+    setOpen(false);
+  };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <span className="font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
+        <span className="w-full justify-center font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
           Add Content
         </span>
       </DialogTrigger>
@@ -38,6 +78,8 @@ function MarkdownDialog() {
                 type="text"
                 placeholder="Write a title for your board"
                 className={styles.dialog_titleBox_title}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
             </div>
           </DialogTitle>
@@ -62,6 +104,7 @@ function MarkdownDialog() {
             <Button
               type="submit"
               className="font-normal border-orange-500 bg-orange-400 text-white hover:bg-orange-500 hover:text-white"
+              onClick={onSubmit}
             >
               Save
             </Button>
