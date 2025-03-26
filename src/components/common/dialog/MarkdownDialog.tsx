@@ -23,6 +23,7 @@ import { toast } from "sonner";
 
 // 컴포넌트
 import LabelCalendar from "../calendar/LabelCalendar";
+import { createTodo } from "@/app/actions/todos-action";
 
 // contents 배열에 대한 타입 정의
 interface BoardContent {
@@ -51,12 +52,8 @@ function MarkdownDialog({ item, updateContent }: BasicBoardProps) {
     item.content ? item.content : ""
   );
 
-  const [startDate, setStartDate] = useState<Date | string>(
-    item.startDate ? item.startDate : new Date().toISOString()
-  );
-  const [endDate, setEndDate] = useState<Date | string>(
-    item.endDate ? item.endDate : new Date().toISOString()
-  );
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
 
   const [isCompleted, setIsComplted] = useState<boolean>(
     item.isCompleted ? item.isCompleted : false

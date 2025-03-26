@@ -31,8 +31,8 @@ function Page() {
   // 데이터 출력 state
   const [title, setTitle] = useState<string | null>("");
   const [contents, setContents] = useState<BoardContent[]>([]);
-  const [startDate, setStarDate] = useState<string | Date>("");
-  const [endDate, setEndDate] = useState<string | Date>("");
+  const [startDate, setStarDate] = useState<undefined | Date>(new Date());
+  const [endDate, setEndDate] = useState<undefined | Date>(new Date());
 
   // 컨텐츠 데이터 업데이트 함수
   const updateContent = async (newData: BoardContent) => {
@@ -71,8 +71,8 @@ function Page() {
     });
 
     setTitle(data?.title ? data.title : "");
-    setStarDate(data?.start_date ? data.start_date : new Date());
-    setEndDate(data?.end_date ? data.end_date : new Date());
+    setStarDate(data?.start_date ? new Date(data.start_date) : new Date());
+    setEndDate(data?.end_date ? new Date(data.end_date) : new Date());
     const temp = data?.contents ? JSON.parse(data.contents as string) : [];
     setContents(temp);
   };
@@ -144,8 +144,16 @@ function Page() {
           {/* 캘린더 선택 추가 */}
           <div className={styles.calendarBox}>
             <div className={styles.calendarBox_calendar}>
-              <LabelCalendar label="From" required={false} />
-              <LabelCalendar label="To" required={true} />
+              <LabelCalendar
+                label="From"
+                required={false}
+                selectedDate={startDate}
+              />
+              <LabelCalendar
+                label="To"
+                required={true}
+                selectedDate={endDate}
+              />
             </div>
             <Button
               variant={"outline"}
@@ -166,7 +174,10 @@ function Page() {
             <span className={styles.subTitle}>
               Click the button and start flashing!
             </span>
-            <button className={styles.button} onClick={onCreateContent}>
+            <button
+              className={styles.button}
+              onClick={() => onCreateContent(initData)}
+            >
               <Image
                 src="/assets/images/round-button.svg"
                 alt="add board"
