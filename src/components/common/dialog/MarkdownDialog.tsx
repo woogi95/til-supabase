@@ -23,50 +23,79 @@ import { toast } from "sonner";
 
 // 컴포넌트
 import LabelCalendar from "../calendar/LabelCalendar";
-import { createTodo } from "@/app/actions/todos-action";
 
-function MarkdownDialog() {
-  // 다이얼로그 props
+// contents 배열에 대한 타입 정의
+interface BoardContent {
+  isCompleted: boolean;
+  title: string;
+  content: string;
+  startDate: string | Date;
+  endDate: string | Date;
+  boardId: string; // 랜던함 아이디를 생성해줄 예정
+}
+
+interface BasicBoardProps {
+  item: BoardContent;
+  updateContent: (newData: BoardContent) => void;
+}
+
+function MarkdownDialog({ item, updateContent }: BasicBoardProps) {
+  // 다이얼로그 Props
   const [open, setOpen] = useState<boolean>(false);
+
   // 에디터의 제목/본문 내용
-  const [title, setTitle] = useState<string | undefined>("");
-  const [content, setContent] = useState<string | undefined>("");
+  const [title, setTitle] = useState<string | undefined>(
+    item.title ? item.title : ""
+  );
+  const [content, setContent] = useState<string | undefined>(
+    item.content ? item.content : ""
+  );
+
+  const [startDate, setStartDate] = useState<Date | string>(
+    item.startDate ? item.startDate : new Date().toISOString()
+  );
+  const [endDate, setEndDate] = useState<Date | string>(
+    item.endDate ? item.endDate : new Date().toISOString()
+  );
+
+  const [isCompleted, setIsComplted] = useState<boolean>(
+    item.isCompleted ? item.isCompleted : false
+  );
 
   // todo 작성
   const onSubmit = async () => {
-    if (!title || !content) {
+    if (!title || !content || !startDate || !endDate) {
       toast.error("입력항목을 확인해 주세요.", {
-        description: "제목과 내용을 입력해주세요.",
+        description: "제목, 내용, 날짜를 입력해주세요.",
         duration: 3000,
       });
       return;
     }
 
-    // 서버액션 실행하기
-    const { data, error, status } = await createTodo({
-      content: content,
+    // 해당 Row 를 바로 업데이트 하는 것이 아니고,
+    // contents 칼럼의 [] 을 업데이트하고.. 실제 Row 를 업데이트 해야함.
+    const tempContent: BoardContent = {
+      boardId: item.boardId,
+      startDate: startDate,
+      endDate: endDate,
       title: title,
-    });
+      content: content,
+      isCompleted: isCompleted,
+    };
+    updateContent(tempContent);
 
-    if (error) {
-      toast.error("등록 실패.", {
-        description: `Error ${error.message}`,
-        duration: 3000,
-      });
-      return;
-    }
-
-    toast.success("성공하였습니다.", {
-      description: "Supabase에 글이 등록되었습니다.",
-      duration: 3000,
-    });
+    // 창닫기
     setOpen(false);
+    // setTitle("");
+    // setContent("");
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <span className="w-full justify-center font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
-          Add Content
+        <span className="w-full justify-center flex font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
+          {/* 현재 내용이 있는 경우와 내용이 없는 경우로 구분 */}
+          {item.title ? "Modify Content" : "Add Content"}
         </span>
       </DialogTrigger>
       <DialogContent className="max-w-fit min-w-[600px]">
@@ -84,8 +113,19 @@ function MarkdownDialog() {
             </div>
           </DialogTitle>
           <div className={styles.dialog_calendarBox}>
-            <LabelCalendar label="From" required={false} />
-            <LabelCalendar label="To" required={false} />
+            {/* 잠시 뒤 날짜 전달 */}
+            <LabelCalendar
+              label="From"
+              required={false}
+              selectedDate={startDate}
+              onDateChange={setStartDate}
+            />
+            <LabelCalendar
+              label="To"
+              required={false}
+              selectedDate={endDate}
+              onDateChange={setEndDate}
+            />
           </div>
           <Separator />
           {/* 마크다운 입력 영역 */}
