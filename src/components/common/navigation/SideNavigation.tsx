@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 
+// actions
+import { createTodo, getTodos, TodosRow } from "@/app/actions/todos-action";
+
 // scss
 import styles from "@/components/common/navigation/SideNavigation.module.scss";
 
@@ -8,15 +11,15 @@ import styles from "@/components/common/navigation/SideNavigation.module.scss";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dot, Search } from "lucide-react";
-import { createTodo, getTodos, TodosRow } from "@/app/actions/todos-action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 function SideNavigation() {
   // 라우터 이동
   const router = useRouter();
+
   const [todos, setTodos] = useState<TodosRow[] | null>([]);
-  // Create
+  // create
   const onCreate = async () => {
     const { data, error, status } = await createTodo({
       title: "",
@@ -37,12 +40,12 @@ function SideNavigation() {
       description: "데이터 추가에 성공하였습니다",
       duration: 3000,
     });
-    console.log("등록된 id", data.id);
-    // 데이터 추가 성공시 할 일 등록 창으로 이동
-    // http://localhost:3000/create/data.id로 이동
+    console.log("등록된 id ", data.id);
+    // 데이터 추가 성공시 할일 등록창으로 이동시킴
+    // http://localhost:3000/create/ [data.id] 로 이동
     router.push(`/create/${data.id}`);
   };
-
+  // read
   const fetchGetTodos = async () => {
     const { data, error, status } = await getTodos();
     // 에러 발생시
@@ -90,7 +93,10 @@ function SideNavigation() {
       </div>
       {/* 추가 항목 출력 영역 */}
       <div className={styles.container_todos}>
-        <div className={styles.container_todos_label}>Your Todo</div>
+        <div className={styles.container_todos_label}>
+          {/* 로그아웃 버튼 */}
+          {"홍길동"}님 Todo
+        </div>
         <div className={styles.container_todos_list}>
           {todos!.map((item) => (
             <div

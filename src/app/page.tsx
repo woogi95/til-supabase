@@ -1,9 +1,9 @@
 "use client";
 import styles from "@/app/page.module.scss";
 import { Button } from "@/components/ui/button";
-import { createTodo } from "./actions/todos-action";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createTodo } from "@/app/actions/todos-action";
 
 function Home() {
   // 라우터 이동
