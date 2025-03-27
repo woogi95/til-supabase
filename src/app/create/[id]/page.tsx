@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { ChevronLeftIcon } from "lucide-react";
+import { useAtom } from "jotai";
+import { sidebarStateAtom } from "@/app/store";
 
 // contents 배열에 대한 타입 정의
 interface BoardContent {
@@ -38,23 +40,33 @@ function Page() {
   // 데이터 출력 state
   const [title, setTitle] = useState<string>("");
   const [contents, setContents] = useState<BoardContent[]>([]);
-  const [startDate, setStarDate] = useState<undefined | Date>(new Date());
+  const [startDate, setStartDate] = useState<undefined | Date>(new Date());
   const [endDate, setEndDate] = useState<undefined | Date>(new Date());
   // Progress Bar 처리
   const [completeCount, setCompleteCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
+  // jotai 상태 사용하기
+  const [sidebarState, setSidebarState] = useAtom(sidebarStateAtom);
 
   // 상위 타이틀 저장
+  // 타이틀 저장 함수
   const handleSaveTitle = async () => {
-    console.log(title);
-    const { data, error, status } = await updateTodoTitle(Number(id), title);
+    const { data, error, status } = await updateTodoTitle(
+      Number(id),
+      title,
+      startDate,
+      endDate
+    );
+    // jotai의 state 갱신
+    setSidebarState("titleChange");
   };
 
   // 일정 페이지 삭제
   const handleDelete = async () => {
+    // console.log(id, "제거하라");
     const { error, status } = await deleteTodo(Number(id));
     if (!error) {
-      router.push("/");
+      setSidebarState("delete");
     }
   };
 
@@ -109,7 +121,7 @@ function Page() {
     });
 
     setTitle(data?.title ? data.title : "");
-    setStarDate(data?.start_date ? new Date(data.start_date) : new Date());
+    setStartDate(data?.start_date ? new Date(data.start_date) : new Date());
     setEndDate(data?.end_date ? new Date(data.end_date) : new Date());
     const temp = data?.contents ? JSON.parse(data.contents as string) : [];
     setContents(temp);
@@ -164,7 +176,7 @@ function Page() {
 
   useEffect(() => {
     fetchGetTodoId();
-  }, []);
+  }, [sidebarState]);
 
   return (
     <div className={styles.container}>
@@ -213,11 +225,13 @@ function Page() {
                 label="From"
                 required={false}
                 selectedDate={startDate}
+                onDateChange={setStartDate}
               />
               <LabelCalendar
                 label="To"
-                required={true}
+                required={false}
                 selectedDate={endDate}
+                onDateChange={setEndDate}
               />
             </div>
             <Button
