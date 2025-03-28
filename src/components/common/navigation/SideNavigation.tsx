@@ -110,6 +110,13 @@ function SideNavigation() {
         >
           Add New Page
         </Button>
+        <Button
+          variant={"outline"}
+          className="w-full text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
+          onClick={() => router.push("/blog")}
+        >
+          Blog
+        </Button>
       </div>
       {/* 추가 항목 출력 영역 */}
       <div className={styles.container_todos}>
