@@ -1,5 +1,5 @@
 "use client";
-import styles from "@/components/editor/icon.module.scss";
+import styles from "@/components/editor/icon.module.css";
 import { Editor } from "@tiptap/core";
 
 // H1 아이콘 및 기능
