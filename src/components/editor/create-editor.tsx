@@ -35,7 +35,7 @@ export const CreateEditor = () => {
   const CustomHighlight = Highlight.configure({
     multicolor: true,
   });
-
+  // 에디터
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -55,15 +55,16 @@ export const CreateEditor = () => {
           class: "cursor-pointer text-blue-500 hover:underline",
         },
       }),
-
       Image,
     ],
-    content: content,
+    content: content, // 초기값
     // 내용 갱신시 실행
     onUpdate({ editor }) {
+      // 내용읽기
       setContent(editor.getHTML());
     },
   });
+
   const onSubmit = async () => {
     const { data, error, status } = await createBlog({
       title,
@@ -79,6 +80,7 @@ export const CreateEditor = () => {
     setTitle("");
     setContent("");
   };
+
   return (
     <div className="w-[95%] flex flex-col bg-white my-3 p-3">
       <h3>블로그 작성하기</h3>
