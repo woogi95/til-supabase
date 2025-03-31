@@ -25,6 +25,7 @@ export async function createTodo(todo: TodosRowInsert) {
 }
 // Read 기능
 export async function getTodos() {
+  console.log("getTodos =============");
   const supabase = await createServerSideClient();
   const { data, error, status } = await supabase
     .from("todos")
@@ -70,7 +71,9 @@ export async function updateTodoId(id: number, contents: string) {
   };
 }
 // Title 업데이트 함수
-export async function updateTodoTitle(
+
+// Update 기능 id 한개
+export async function updateTodoIdTitle(
   id: number,
   title: string,
   startDate: Date | undefined,
@@ -95,10 +98,9 @@ export async function updateTodoTitle(
     status: number;
   };
 }
-// Row 데이터 삭제
+// Row 삭제 기능
 export async function deleteTodo(id: number) {
   const supabase = await createServerSideClient();
-
   const { error, status } = await supabase.from("todos").delete().eq("id", id);
 
   return { error, status } as {

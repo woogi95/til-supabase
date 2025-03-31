@@ -52,11 +52,7 @@ function SideNavigation() {
   };
   // read
   const fetchGetTodos = async () => {
-    console.log("fetchGetTodos 실행함 ");
     const { data, error, status } = await getTodos();
-    console.log("fetchGetTodos data ", data);
-    console.log("fetchGetTodos error ", error);
-    console.log("fetchGetTodos status ", status);
     // 에러 발생시
     if (error) {
       toast.error("데이터조회실패", {
@@ -70,11 +66,7 @@ function SideNavigation() {
       description: "데이터조회에 성공하였습니다",
       duration: 3000,
     });
-
-    console.log("너는 왜 안되니? data : ", data);
-
     setSideState("default");
-
     setTodos(data);
   };
 
@@ -105,14 +97,14 @@ function SideNavigation() {
       <div className={styles.container_buttonBox}>
         <Button
           variant={"outline"}
-          className="w-full text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
+          className="text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
           onClick={onCreate}
         >
           Add New Page
         </Button>
         <Button
           variant={"outline"}
-          className="w-full text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
+          className="flex-1 text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
           onClick={() => router.push("/blog")}
         >
           Blog

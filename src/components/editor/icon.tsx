@@ -184,7 +184,6 @@ function Strikethrough({ editor }: { editor: Editor }) {
     ></button>
   );
 }
-
 // 내용 정렬 아이콘
 function Left({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -194,41 +193,49 @@ function Left({ editor }: { editor: Editor }) {
     // 비활성화 되는 이유는 현재 editor 에 정렬 플러그인이 셋팅 안되어서입니다.
     editor.chain().focus().setTextAlign("left").run();
   };
-  <button
-    onClick={handleClick}
-    disabled={!editor.can().chain().focus().toggleStrike().run()}
-    className={`${styles.toolbarBtn} ${styles.strike} ${isActive ? styles.active : styles.none}`}
-  ></button>;
+  return (
+    <button
+      onClick={handleClick}
+      disabled={!editor.can().chain().focus().setTextAlign("left").run()}
+      className={`${styles.toolbarBtn} ${styles.left} ${isActive ? styles.active : styles.none}`}
+    ></button>
+  );
 }
 
 function Center({ editor }: { editor: Editor }) {
   if (!editor) return null;
   const isActive = editor.isActive({ textAlign: "center" });
+  // 클릭시 실행
   const handleClick = () => {
     // 비활성화 되는 이유는 현재 editor 에 정렬 플러그인이 셋팅 안되어서입니다.
     editor.chain().focus().setTextAlign("center").run();
   };
-
-  <button
-    onClick={handleClick}
-    disabled={!editor.can().chain().focus().setTextAlign("center").run()}
-    className={`${styles.toolbarBtn} ${styles.center} ${isActive ? styles.active : styles.none}`}
-  ></button>;
+  return (
+    <button
+      onClick={handleClick}
+      disabled={!editor.can().chain().focus().setTextAlign("center").run()}
+      className={`${styles.toolbarBtn} ${styles.center} ${isActive ? styles.active : styles.none}`}
+    ></button>
+  );
 }
 
 function Right({ editor }: { editor: Editor }) {
   if (!editor) return null;
   const isActive = editor.isActive({ textAlign: "right" });
+  // 클릭시 실행
   const handleClick = () => {
     // 비활성화 되는 이유는 현재 editor 에 정렬 플러그인이 셋팅 안되어서입니다.
     editor.chain().focus().setTextAlign("right").run();
   };
-  <button
-    onClick={handleClick}
-    disabled={!editor.can().chain().focus().setTextAlign("right").run()}
-    className={`${styles.toolbarBtn} ${styles.right} ${isActive ? styles.active : styles.none}`}
-  ></button>;
+  return (
+    <button
+      onClick={handleClick}
+      disabled={!editor.can().chain().focus().setTextAlign("right").run()}
+      className={`${styles.toolbarBtn} ${styles.right} ${isActive ? styles.active : styles.none}`}
+    ></button>
+  );
 }
+
 /** TextColor 아이콘 */
 function TextColor({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -270,6 +277,7 @@ function TextColor({ editor }: { editor: Editor }) {
     </div>
   );
 }
+
 /** BackgroundColor 아이콘 */
 function BackgroundColor({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -331,6 +339,7 @@ function Quote({ editor }: { editor: Editor }) {
     />
   );
 }
+
 /** Code 아이콘 */
 function Code({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -349,6 +358,7 @@ function Code({ editor }: { editor: Editor }) {
     />
   );
 }
+
 /** Link 아이콘 */
 function Link({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -391,6 +401,7 @@ function Link({ editor }: { editor: Editor }) {
     />
   );
 }
+
 /** AddPhoto 아이콘 */
 function AddPhoto({ editor }: { editor: Editor }) {
   if (!editor) return null;
@@ -408,6 +419,7 @@ function AddPhoto({ editor }: { editor: Editor }) {
     />
   );
 }
+
 // Icon 객체로 모아서 export
 export const Icon = {
   H1,

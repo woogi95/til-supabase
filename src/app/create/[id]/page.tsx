@@ -9,7 +9,7 @@ import {
   deleteTodo,
   getTodoId,
   updateTodoId,
-  updateTodoTitle,
+  updateTodoIdTitle,
 } from "@/app/actions/todos-action";
 // component
 import BasicBoard from "@/components/common/board/BasicBoard";
@@ -35,58 +35,59 @@ interface BoardContent {
 }
 
 function Page() {
-  const { id } = useParams();
+  // jotai 상태 사용하기
+  const [sidebarState, setSideState] = useAtom(sidebarStateAtom);
+
   const router = useRouter();
+  const { id } = useParams();
   // 데이터 출력 state
   const [title, setTitle] = useState<string>("");
   const [contents, setContents] = useState<BoardContent[]>([]);
-  const [startDate, setStartDate] = useState<undefined | Date>(new Date());
+  const [startDate, setStarDate] = useState<undefined | Date>(new Date());
   const [endDate, setEndDate] = useState<undefined | Date>(new Date());
   // Progress Bar 처리
   const [completeCount, setCompleteCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
-  // jotai 상태 사용하기
-  const [sidebarState, setSidebarState] = useAtom(sidebarStateAtom);
 
-  // 상위 타이틀 저장
+  // Page 삭제 함수
+  const handleDeleteBoard = async () => {
+    // console.log(id, "제거하라");
+    const { error, status } = await deleteTodo(Number(id));
+    if (!error) {
+      setSideState("delete");
+    }
+  };
+
   // 타이틀 저장 함수
   const handleSaveTitle = async () => {
-    const { data, error, status } = await updateTodoTitle(
+    const { data, error, status } = await updateTodoIdTitle(
       Number(id),
       title,
       startDate,
       endDate
     );
-    // jotai의 state 갱신
-    setSidebarState("titleChange");
-  };
 
-  // 일정 페이지 삭제
-  const handleDelete = async () => {
-    // console.log(id, "제거하라");
-    const { error, status } = await deleteTodo(Number(id));
-    if (!error) {
-      setSidebarState("delete");
-    }
+    // jotai의 State 갱신
+    setSideState("titleChange");
   };
-
   // 컨텐츠 삭제 함수
   const deleteContent = async (deleteBoardId: string) => {
-    console.log("삭제할 컨텐츠 boardId", deleteBoardId);
-    const tempContentArr = contents.filter(
+    // console.log("삭제할 컨텐츠 boardId ", deleteBoardId);
+    const tempConentArr = contents.filter(
       (item) => item.boardId !== deleteBoardId
     );
     // 서버에 Row 를 업데이트 합니다.
     const { data, error, status } = await updateTodoId(
       Number(id),
-      JSON.stringify(tempContentArr)
+      JSON.stringify(tempConentArr)
     );
+
     fetchGetTodoId();
   };
 
   // 컨텐츠 데이터 업데이트 함수
   const updateContent = async (newData: BoardContent) => {
-    console.log("최종전달 ", newData);
+    // console.log("최종전달 ", newData);
 
     const newContentArr = contents.map((item) => {
       if (item.boardId === newData.boardId) {
@@ -121,19 +122,21 @@ function Page() {
     });
 
     setTitle(data?.title ? data.title : "");
-    setStartDate(data?.start_date ? new Date(data.start_date) : new Date());
+    setStarDate(data?.start_date ? new Date(data.start_date) : new Date());
     setEndDate(data?.end_date ? new Date(data.end_date) : new Date());
     const temp = data?.contents ? JSON.parse(data.contents as string) : [];
     setContents(temp);
-    // 카운트
-    calcCompleteCount(temp);
+    // 목록 갱신시
+    calcCompletedCount(temp);
   };
   // contents 의 isCompleted 가 true 인 갯수 파악하기
-  const calcCompleteCount = (temp: BoardContent[]) => {
-    const count = temp.filter((item) => item.isCompleted === true).length;
-    setCompleteCount(count);
-    setTotalCount((count / temp.length) * 100);
+  const calcCompletedCount = (gogo: BoardContent[]) => {
+    const arr = gogo.filter((item) => item.isCompleted === true);
+    // console.log("count : ", arr.length);
+    setCompleteCount(arr.length);
+    setTotalCount((arr.length / gogo.length) * 100);
   };
+
   // 컨텐츠 추가하기
   const initData: BoardContent = {
     boardId: nanoid(),
@@ -149,7 +152,7 @@ function Page() {
     // 기본으로 추가될 내용
 
     const updateContent = [...contents, addContent];
-    console.log("updateContent : ", updateContent);
+    // console.log("updateContent : ", updateContent);
     // 서버에 Row 를 업데이트 합니다.
     const { data, error, status } = await updateTodoId(
       Number(id),
@@ -175,8 +178,10 @@ function Page() {
   };
 
   useEffect(() => {
+    // jotai의 State 갱신
+    setSideState("add Page");
     fetchGetTodoId();
-  }, [sidebarState]);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -191,7 +196,7 @@ function Page() {
           <Button variant={"outline"} onClick={handleSaveTitle}>
             저장
           </Button>
-          <Button variant={"outline"} onClick={handleDelete}>
+          <Button variant={"outline"} onClick={handleDeleteBoard}>
             삭제
           </Button>
         </div>
@@ -225,7 +230,7 @@ function Page() {
                 label="From"
                 required={false}
                 selectedDate={startDate}
-                onDateChange={setStartDate}
+                onDateChange={setStarDate}
               />
               <LabelCalendar
                 label="To"

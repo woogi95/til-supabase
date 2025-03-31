@@ -1,402 +1,89 @@
-# tiptap 내용을 supabase 저장하기
+# file 관련
 
-## UI 추가
+## action 관련
 
-- `/src/components/editor.module.css 파일` 생성
+### 1. 파일 처리
 
-```css
-/* Tiptap Style  */
-.ProseMirror-focused {
-  border: none !important;
-  outline: none !important;
-}
+- blog-storage-action.ts
 
-.ProseMirror {
-  min-height: 300px;
-  padding: 15px 0px;
-  padding-bottom: 1.25rem;
-}
-
-.tiptap .is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-  font-size: 0.875rem;
-}
-
-.tiptap p {
-  padding: 0.375rem 0;
-}
-
-.tiptap pre {
-  background: #0d0d0d;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-family: inherit;
-  padding: 0.75rem 1rem;
-  line-height: 1.6rem;
-}
-.tiptap pre code {
-  background: none;
-  color: inherit;
-  font-size: 1rem;
-  padding: 0;
-}
-.tiptap ul,
-.tiptap ol {
-  padding: 0 2rem;
-}
-.tiptap ol p {
-  padding: 0;
-}
-.tiptap ul > li {
-  list-style: disc;
-}
-
-.tiptap ul > li {
-  list-style: circle;
-}
-.tiptap ol > li {
-  list-style: decimal;
-}
-
-.tiptap blockquote {
-  border-left: 3px solid var(--color-border);
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0.625rem;
-}
-
-.tiptap a {
-  text-decoration: underline;
-  color: #477bff;
-}
-
-.tiptap iframe {
-  padding: 0.625rem 0;
-}
-
-.tiptap .tableWrapper {
-  margin: 1.25rem 0;
-}
-
-.tiptap table {
-  overflow: hidden;
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-  border: 1px solid var(--color-border);
-  user-select: contain;
-}
-
-.tiptap table tr:nth-child(2n) {
-  background-color: var(--color-background);
-}
-
-.tiptap table tr:nth-child(2n + 1) {
-  background-color: var(--color-deep-background);
-}
-
-.tiptap table tr td {
-  padding: 0.9375rem 0.375rem;
-  border-right: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.tiptap .resize-cursor td:has(.column-resize-handle) {
-  border-right: 2px solid #477bff !important;
-  cursor: col-resize;
-}
-.main {
-  padding: 5px;
-}
-.editor {
-  padding: 20px;
-  border: 1px solid #cacad6;
-}
-
-/* 추가 코드 */
-.editor :global(.ProseMirror) {
-  padding: 1rem;
-}
-.editor :global(.ProseMirror:focus) {
-  outline: none; /* 포커스 시 생기는 테두리 제거 */
-}
-
-.editor h1 {
-  font-size: 2em;
-  font-weight: bold;
-  margin-top: 0.67em;
-  margin-bottom: 0.67em;
-}
-
-.editor h2 {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin-top: 0.83em;
-  margin-bottom: 0.83em;
-}
-
-.editor h3 {
-  font-size: 1.17em;
-  font-weight: bold;
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.editor h4 {
-  font-size: 1em;
-  font-weight: bold;
-  margin-top: 1.33em;
-  margin-bottom: 1.33em;
-}
-
-.editor h5 {
-  font-size: 0.83em;
-  font-weight: bold;
-  margin-top: 1.67em;
-  margin-bottom: 1.67em;
-}
-
-.editor h6 {
-  font-size: 0.67em;
-  font-weight: bold;
-  margin-top: 2.33em;
-  margin-bottom: 2.33em;
-}
-.editor code {
-  background-color: rgba(97, 97, 97, 0.1);
-  color: #616161;
-  font-family: "Consolas", "Monaco", "Andale Mono", monospace;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-size: 0.9em;
-  white-space: pre-wrap;
-}
-.editor blockquote {
-  border-left: 4px solid #ddd;
-  margin: 1.5em 0;
-  padding: 0.5em 1em;
-  background-color: #f9f9f9;
-  font-style: italic;
-}
-
-.editor blockquote p {
-  margin: 0;
-}
-
-/* 기본 이미지 스타일 */
-.editor img {
-  max-width: 100%;
-  height: auto;
-  vertical-align: middle;
-  display: inline-block;
-}
-
-/* 텍스트 정렬에 따른 이미지 정렬 */
-.editor p[style*="text-align: center"] {
-  text-align: center;
-}
-
-.editor p[style*="text-align: right"] {
-  text-align: right;
-}
-
-.editor p[style*="text-align: left"] {
-  text-align: left;
-}
-
-/* 이미지를 포함한 문단의 스타일 */
-.editor p {
-  display: block;
-  width: 100%;
-}
-```
-
-- create-editor.tsx 수정
-
-```tsx
-"use client";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-
-// css
-import styles from "@/components/editor/editor.module.css";
-
-// extension : 내용 정렬
-import TextAlign from "@tiptap/extension-text-align";
-// extension : color
-import { Color } from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
-// extension : code block, background
-import { common, createLowlight } from "lowlight";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import Highlight from "@tiptap/extension-highlight";
-// extension : Link
-import Link from "@tiptap/extension-link";
-// extension : Image
-import Image from "@tiptap/extension-image";
-
-import Toolbar from "./toolbar";
-// Sahdcn
-import { Button } from "@/components/ui/button";
-
-export const CreateEditor = () => {
-  // 배경색
-  const lowlight = createLowlight(common);
-  const CustomHighlight = Highlight.configure({
-    multicolor: true,
-  });
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      TextAlign.configure({
-        types: ["heading", "paragraph", "blockquote"],
-        alignments: ["left", "center", "right"],
-      }),
-      Color,
-      TextStyle,
-      CodeBlockLowlight.configure({
-        lowlight: lowlight,
-      }),
-      CustomHighlight,
-      Link.configure({
-        openOnClick: true,
-        HTMLAttributes: {
-          class: "cursor-pointer text-blue-500 hover:underline",
-        },
-      }),
-
-      Image,
-    ],
-    content: "<p>안녕하세요.</p>",
-  });
-  return (
-    <div className="w-[95%] flex flex-col bg-white my-3 p-3">
-      <h3>블로그 작성하기</h3>
-      <div className="w-full flex-col items-center justify-center">
-        <div className="w-full my-2">
-          <input className="w-full p-2 border-2 border-gray-300 rounded-md" />
-        </div>
-        <div className={styles.editor}>
-          {editor && <Toolbar editor={editor} />}
-          <EditorContent editor={editor} />
-        </div>
-        <div className="flex w-full items-center justify-center p-2">
-          <Button type="button" className="px-4 py-2">
-            Add Blog
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-```
-
-## Supabase 테이블 생성
-
-- blog 테이블 및 blog-data 저장소 생성
-
-```bash
-npm run generate-types
-```
-
-## 블로그용 액션 추가하기
-
-- actions/blog-action.ts 파일 생성
-
-```tsx
+```ts
 "use server";
+
 import { createServerSideClient } from "@/lib/supabase/server";
-import { Database } from "@/types/types_db";
-export type TodosRow = Database["public"]["Tables"]["blog"]["Row"];
-export type TodosRowInsert = Database["public"]["Tables"]["blog"]["Insert"];
-export type TodosRowUpdate = Database["public"]["Tables"]["blog"]["Update"];
 
-// Create 기능
-export async function createBlog(blog: TodosRowInsert) {
-  const supabase = await createServerSideClient();
-  const { data, error, status } = await supabase
-    .from("blog")
-    .insert([
-      {
-        title: blog.title,
-        content: blog.content,
-      },
-    ])
-    .select()
-    .single();
-
-  return { data, error, status };
-}
-// Read 기능
-export async function getBlogs() {
-  const supabase = await createServerSideClient();
-  const { data, error, status } = await supabase
-    .from("blog")
-    .select("*")
-    .order("id", { ascending: false });
-  return { data, error, status } as {
-    data: TodosRow[] | null;
-    error: Error | null;
-    status: number;
-  };
+// 에러 타입에 대해서 파악하기
+function handleError(error: unknown) {
+  if (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
-// Read 기능 id 한개
-export async function getBlogId(id: number) {
-  const supabase = await createServerSideClient();
-  const { data, error, status } = await supabase
-    .from("blog")
-    .select()
-    .eq("id", id)
-    .single();
-  return { data, error, status } as {
-    data: TodosRow | null;
-    error: Error | null;
-    status: number;
-  };
+// 파일 업로드
+export async function uploadFile(formData: FormData): Promise<{
+  id: string;
+  path: string;
+  fullPath: string;
+} | null> {
+  try {
+    const supabase = await createServerSideClient();
+    // getUser()를 사용하여 인증된 사용자 정보 가져오기
+    // const {
+    //   data: { user },
+    //   error: userError,
+    // } = await supabase.auth.getUser();
+
+    // if (userError || !user) {
+    //   console.error("인증된 사용자가 아닙니다.");
+    //   return null;
+    // }
+
+    const file = formData.get("file") as File;
+    // 파일 이름에 사용자 ID를 포함시켜 고유성 보장
+    const fileExt = file.name.split(".").pop();
+
+    // 인증 과정을 거치고 나면 사용자 ID 를 이용해서 파일을 생성한다.
+    // const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+    const fileName = `${"tester"}_${Date.now()}.${fileExt}`;
+
+    // upsert : insert 와 update 를 동시에 처리할 수 있는 옵션
+    const { data, error } = await supabase.storage
+      .from(process.env.NEXT_PUBLIC_STORAGE_BLOG_BUCKET as string)
+      .upload(fileName, file, { upsert: true });
+
+    if (error) {
+      console.log("Error : ", error.message);
+      handleError(error);
+      return null; // 에러 발생 시 null 반환
+    }
+
+    return data;
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
 }
 
-// Update 기능 id 한개
-export async function updateBlogId(
-  id: number,
-  title: string,
-  contents: string
-) {
+// supabas에서 파일 삭제
+export async function deleteFile(fileName: string) {
   const supabase = await createServerSideClient();
 
-  const { data, error, status } = await supabase
-    .from("blog")
-    .update({ contents: contents, title: title })
-    .eq("id", id)
-    .select()
-    .single();
+  // 파일 삭제시 파일명을 배열에 요소로 추가해서 삭제한다.
+  const { data, error } = await supabase.storage
+    .from(process.env.NEXT_PUBLIC_STORAGE_BLOG_BUCKET as string)
+    .remove([fileName]);
 
-  return { data, error, status } as {
-    data: TodosRow | null;
-    error: Error | null;
-    status: number;
-  };
-}
+  handleError(error);
 
-// Row 삭제 기능
-export async function deleteBlog(id: number) {
-  const supabase = await createServerSideClient();
-  const { error, status } = await supabase.from("blog").delete().eq("id", id);
-
-  return { error, status } as {
-    error: Error | null;
-    status: number;
-  };
+  return data;
 }
 ```
 
-## supabase 데이터 보내기
+## Editor 관련
 
+- delete 와 backspace 키보드에 대한 처리를 진행
+- 작성 중인 내용에서 img 태그의 src에 담긴 글자를 분석해서 파일명을 파악
+- 발견한 파일명 문자열을 action 의 deleteFile(파일명)을 전달해야 한다.
 - create-editor.tsx
 
 ```tsx
@@ -427,6 +114,7 @@ import { Button } from "@/components/ui/button";
 import { createBlog } from "@/app/actions/blog-action";
 import { useState } from "react";
 import { toast } from "sonner";
+import { deleteFile } from "@/app/actions/blog-storage-action";
 
 export const CreateEditor = () => {
   // 내용
@@ -437,7 +125,7 @@ export const CreateEditor = () => {
   const CustomHighlight = Highlight.configure({
     multicolor: true,
   });
-
+  // 에디터
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -457,15 +145,95 @@ export const CreateEditor = () => {
           class: "cursor-pointer text-blue-500 hover:underline",
         },
       }),
-
       Image,
     ],
-    content: content,
+    content: content, // 초기값
     // 내용 갱신시 실행
     onUpdate({ editor }) {
+      // 내용읽기
       setContent(editor.getHTML());
     },
+    // 에디터의 내용 분석하기
+    editorProps: {
+      handleKeyDown: (view, event) => {
+        if (event.key === "Backspace" || event.key === "Delete") {
+          const { from, to } = view.state.selection;
+          // Case 1: 단일 이미지 노드가 선택된 경우
+          const currentNode = view.state.doc.nodeAt(from);
+          if (currentNode?.type.name === "image") {
+            const imageUrl = currentNode.attrs.src;
+            // Supabase에 저장된 이미지인 경우에만 처리
+            if (imageUrl.includes("supabase")) {
+              console.log("Single image delete:", imageUrl);
+              deleteImageFromSupabase(imageUrl); // 실제 삭제 함수 호출 (현재는 주석 처리됨)
+            }
+            return false; // 기본 삭제 동작 방지
+          }
+
+          // Case 2: Backspace로 이미지 삭제하는 경우
+          // 커서가 이미지 바로 뒤에 있을 때 (from과 to가 같음 = 선택된 영역이 없음)
+          if (event.key === "Backspace" && from === to) {
+            const nodeBefore = view.state.doc.nodeAt(from - 1);
+            if (nodeBefore?.type.name === "image") {
+              const imageUrl = nodeBefore.attrs.src;
+              if (imageUrl.includes("supabase")) {
+                console.log("Backspace image delete:", imageUrl);
+                deleteImageFromSupabase(imageUrl);
+              }
+            }
+          }
+
+          // Case 3: 여러 노드가 선택된 경우 (드래그로 여러 요소 선택)
+          if (from !== to) {
+            let pos = from;
+            // 선택된 영역 내의 모든 노드를 순회
+            while (pos < to) {
+              const node = view.state.doc.nodeAt(pos);
+              // 이미지 노드를 발견하면 처리
+              if (node?.type.name === "image") {
+                const imageUrl = node.attrs.src;
+                if (imageUrl.includes("supabase")) {
+                  console.log("Selected image delete:", imageUrl);
+                  deleteImageFromSupabase(imageUrl);
+                }
+              }
+              // 다음 노드로 이동 (노드의 크기만큼 position 증가)
+              pos += node ? node.nodeSize : 1;
+            }
+          }
+        }
+        // Backspace 키를 눌렀을 때 빈 blockquote 처리
+        if (event.key === "Backspace") {
+          const { selection } = view.state;
+          const { empty, $anchor } = selection;
+          const isBlockquote = $anchor.parent.type.name === "blockquote";
+
+          if (empty && isBlockquote && $anchor.parent.content.size === 0) {
+            editor?.commands.clearNodes();
+            return true;
+          }
+        }
+        return false;
+      },
+    },
   });
+
+  // Supabase 에서 이미지 삭제하는 함수
+  const deleteImageFromSupabase = async (imageUrl: string) => {
+    console.log("삭제될 이미지 파일명 추출 : ", imageUrl);
+    try {
+      // URL에서 파일명만 추출
+      const fileNameMatch = imageUrl.match(/([^\/]+)$/);
+      if (fileNameMatch) {
+        const fileName = fileNameMatch[1]; // "slide-3.png"
+        console.log("Deleting image from Supabase:", fileName);
+        await deleteFile(fileName); // await로 삭제 완료 대기
+      }
+    } catch (error) {
+      console.error("Error deleting image from Supabase:", error);
+    }
+  };
+
   const onSubmit = async () => {
     const { data, error, status } = await createBlog({
       title,
@@ -481,6 +249,7 @@ export const CreateEditor = () => {
     setTitle("");
     setContent("");
   };
+
   return (
     <div className="w-[95%] flex flex-col bg-white my-3 p-3">
       <h3>블로그 작성하기</h3>
@@ -495,7 +264,10 @@ export const CreateEditor = () => {
         </div>
         <div className={styles.editor}>
           {editor && <Toolbar editor={editor} />}
-          <EditorContent editor={editor} />
+          <EditorContent
+            editor={editor}
+            onClick={() => editor?.commands.focus()}
+          />
         </div>
         <div className="flex w-full items-center justify-center p-2">
           <Button type="button" className="px-4 py-2" onClick={onSubmit}>

@@ -25,10 +25,12 @@ interface BasicBoardProps {
 }
 
 function BasicBoard({ item, updateContent, deleteContent }: BasicBoardProps) {
-  const [isCompleted, setIsCompleted] = useState<boolean>(item.isCompleted);
+  const [isComplted, setIsCompleted] = useState<boolean>(item.isCompleted);
+
   useEffect(() => {
     setIsCompleted(item.isCompleted);
   }, [item]);
+
   return (
     <div className={styles.container}>
       {/* 헤더 */}
@@ -36,11 +38,11 @@ function BasicBoard({ item, updateContent, deleteContent }: BasicBoardProps) {
         <div className={styles.container_header_titleBox}>
           <Checkbox
             className="w-5 h-5"
-            checked={isCompleted}
+            checked={isComplted}
             onCheckedChange={() => {
               item.isCompleted = !item.isCompleted;
-              setIsCompleted(item.isCompleted);
               updateContent(item);
+              setIsCompleted(item.isCompleted);
             }}
           />
           <span className={styles.title}>
