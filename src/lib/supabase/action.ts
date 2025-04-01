@@ -30,5 +30,5 @@ const signOut = async () => {
   await supabase.auth.signOut();
 };
 const signInWithGoogle = signInWith("google");
-
-export { signInWithGoogle, signOut };
+const signInWithKakao = signInWith("kakao");
+export { signInWithGoogle, signOut, signInWithKakao };

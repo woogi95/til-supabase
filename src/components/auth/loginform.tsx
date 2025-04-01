@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { signInWithGoogle } from "@/lib/supabase/action";
+import { signInWithGoogle, signInWithKakao } from "@/lib/supabase/action";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -71,6 +71,24 @@ export function LoginForm() {
     try {
       setIsLoading(true);
       await signInWithGoogle();
+      toast.success("로그인 성공!", {
+        description: "메인 페이지로 이동합니다.",
+      });
+
+      // router.push("/dashboard");
+      // router.refresh();
+    } catch (error) {
+      toast.error("로그인 실패", {
+        description: "Google 로그인 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleKakaoLogin = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithKakao();
       toast.success("로그인 성공!", {
         description: "메인 페이지로 이동합니다.",
       });
@@ -155,6 +173,15 @@ export function LoginForm() {
           disabled={isLoading}
         >
           Google로 계속하기
+        </Button>
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          onClick={handleKakaoLogin}
+          disabled={isLoading}
+        >
+          카카오로 계속하기
         </Button>
         <div className="text-center text-sm text-muted-foreground">
           계정이 없으신가요?{" "}
