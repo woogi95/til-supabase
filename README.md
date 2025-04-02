@@ -1,30 +1,26 @@
-# React Query
+# React Query 적용
 
-- v3, v4, v5 각 버전이 사용법이 다름
-- 현재는 v5
-- https://tanstack.com/query/v5
-- https://tanstack.com/query/v5/docs/framework/react/overview
-- https://velog.io/@kandy1002/React-Query-푹-찍어먹기
+## 1. 설치
 
-## 설치
+- 라이브러리
 
 ```bash
-npm install @tanstack/react-query (--legacy-peer-deps)
+npm install @tanstack/react-query --legacy-peer-deps
 ```
 
 - DevTool 설치
 
 ```bash
-npm i @tanstack/react-query-devtools (--legacy-peer-deps)
+npm i @tanstack/react-query-devtools --legacy-peer-deps
 ```
 
-## 개념
+## 2. 개념
 
-- 데이터를 쉽게 가져오고, 자동으로 업데이트 해주는 도구 라이브러리
-- `fresh 한 데이터` : 최신 데이터
-- `stale 한 데이터` : 기존 데이터 (상해버린 데이터)
+- 데이터를 쉽게 가져오고, 자동으로 업데이트해 주는 도구 라이브러리입니다.
+- `fresh` 한 데이터 : 최신 데이터
+- `stale` 한 데이터 : 기존 데이터 (상해버린 데이터)
 - 서버 상태를 불러오고, 캐싱하고, 지속적으로 동기화하고 업데이트 도움 라이브러리
-- 캐싱기능과, Window Focus Refeching 등의 기능이 존재
+- 캐싱기능과, Window Focus Reftching 등의 기능이 존재
 
 ## 3. 환경설정
 
@@ -97,400 +93,405 @@ export default function RootLayout({
 }
 ```
 
-## 4. 기능 살펴보기 라우터구성
+## 4. 적용
 
-- 간단한 Todo 로 실습
-
-### 4.1. Server Action 생성
-
-- `/src/app/actions/test-action.ts 파일` 생성
-
-```ts
-"use server";
-const TODOS: string[] = [];
-// 할일 목록 가져오기
-export const getTodos = async (): Promise<string[]> => {
-  // 일부러 서버 지연되는 것처럼 1초 소비
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return TODOS;
-};
-// 할일 목록 추가하기
-export const createTodos = async (data: string): Promise<string[]> => {
-  // 일부러 서버 지연되는 것처럼 1초 소비
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // 새로운 todo 를 추가해서
-  TODOS.push(data);
-  return TODOS;
-};
-```
-
-### 4.2. test 라우터를 생성
-
-- http://localhost:3000/test 접근
-- /src/app/test 폴더
-- /src/app/test/page.tsx 파일생성
-
-```tsx
-import React from "react";
-
-const Page = () => {
-  return (
-    <div>
-      <h1>Test Todo</h1>
-    </div>
-  );
-};
-
-export default Page;
-```
-
-###
-
-## 5. useQuery() 살펴보기
+- /src/app/(with-side)/page.tsx
 
 ```tsx
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { getTodos } from "../actions/test-action";
-
-const Page = () => {
-  // 데이터 가져오기
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["uniq"],
-    queryFn: getTodos,
-  });
-
-  return (
-    <div>
-      <h1>Test Todo</h1>
-      {isLoading && <div>데이터 로딩중 ...</div>}
-      {error && <div>Error : {error.message} </div>}
-      {data && (
-        <div>
-          {data.map((item, index) => (
-            <div key={index}>{item}</div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Page;
-```
-
-### 5.1. 옵션 설명
-
-```tsx
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-});
-```
-
-#### 5.1. queryKey 옵션
-
-```tsx
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-});
-```
-
-- queryKey
-  - 데이터를 구분하는 이름, 구분자 역할, 유일한 이름
-  - 이름이 중복되면 요청은 한번만 하므로 의미없는 API 호출을 방지
-
-```tsx
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq", userId],
-  queryFn: getTodos,
-});
-```
-
-- userId 가 1 이라는 값이라면 ["uniq", 1]
-- userId 가 2 이라는 값이라면 ["uniq", 2]
-- 각 사용자별 목록을 별도로 관리 가능
-- `const { data, isLoading, error, refetch, isFetching }`
-  - data : 가져온 데이터 (성공하면 데이터가 저장됨)
-  - isLoading : 데이터를 가지고 오는 중이면 true
-  - error : 에러가 발생하면 에러 정보가 담겨있음
-  - isFetching : 데이터를 호출하는 중이면 true
-  - refetch : 데이터를 다시 가져오도록 함수 호출
-
-#### 5.2. staleTime 옵션
-
-- 일정한 시간만큼 새로운 데이터를 가져오지 않는다.
-- 일정한 시간만큼 캐싱이 되어 있는 데이터를 사용한다.
-
-```tsx
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  staleTime: 5000,
-});
-```
-
-#### 5.3. staleTime 옵션
-
-- 일정한 시간마다 새로운 데이터를 다시 가져오기
-
-```tsx
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  refetchInterval: 5000,
-});
-```
-
-#### 5.4. enabled 옵션
-
-- 조건에 따라서 true 인 경우 데이터를 가져온다.
-
-```tsx
-// 데이터 가져오기
-const [isFetch, setIsFetch] = useState<boolean>(false);
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  enabled: isFetch,
-});
-```
-
-#### 5.5. refetchOnWindowFocus 옵션
-
-- 웹브라우저 윈도우가 포커스 된 경우 데이터 새로고침 여부
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  refetchOnWindowFocus: true,
-});
-```
-
-#### 5.6. refetchOnMount 옵션
-
-- 마운트 될때 데이를 새로 고침
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  refetchOnMount: true,
-});
-```
-
-#### 5.7. refetchOnReconnect 옵션
-
-- 네트워크가 다시 연결될때 데이터 새로고침
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  refetchOnReconnect: true,
-});
-```
-
-#### 5.8. refetchIntervalInBackground 옵션
-
-- 배경에서 데이터를 새로 고침 여부
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  refetchIntervalInBackground: true,
-});
-```
-
-#### 5.9. gcTime 옵션
-
-- 데이터를 캐시에 보관하는 시간
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  gcTime: 1000 * 60 * 5, // 5 분동안
-});
-```
-
-#### 5.10. retry 옵션
-
-- 데이터 가져오다가 실패한 경우 몇 번 더 재실행할 것인가
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  retry: 3,
-});
-```
-
-#### 5.11. retryDelay 옵션
-
-- 재실행 대기 시간
-
-```tsx
-// 데이터 가져오기
-const { data, isLoading, error, refetch } = useQuery({
-  queryKey: ["uniq"],
-  queryFn: getTodos,
-  retry: 3,
-  retryDelay: 3000,
-});
-```
-
-## 6. useMutation() 살펴보기 (데이터 조작하기)
-
-- 데이터를 생성, 수정, 삭제 등의 작업을 처리함.
-- 데이터를 변경하는 작업
-- mutaion.mutate(데이터) : 데이터를 서버로 보내는 경우
-  - `onClick={() => createMutaion.mutate()}`
-- mutaion.data : 성공시 반환되는 데이터
-- mutaion.isLoading : 서버 작업 요청 중이면 true
-- mutaion.isError : 에러가 발생하면 true
-- mutation.isSucess : 성공하면 true
-- mutation.isPending : 연결 시도중 이면 true
-
-```tsx
-"use client";
-import { createTodos, getTodos } from "@/app/actions/test-action";
+import styles from "@/app/(with-side)/page.module.scss";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createTodo } from "@/app/actions/todos-action";
+// React Query
+import { useMutation } from "@tanstack/react-query";
 
-const Page = () => {
-  const [testInput, setTestInput] = useState<string>("");
-
-  // 데이터 가져오기
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["uniq"],
-    queryFn: getTodos,
-    retry: 3,
-    retryDelay: 3000,
-  });
-
-  // 데이터 추가하기
+function Home() {
+  // 라우터 이동
+  const router = useRouter();
+  // create
   const createMutaion = useMutation({
-    mutationFn: async () => {
-      if (testInput.trim() === "") {
-        alert("할일을 등록해주세요");
-        return;
-      }
-      await createTodos(testInput);
-    },
-    onSuccess: () => {
-      setTestInput("");
-      refetch();
+    mutationFn: () =>
+      createTodo({
+        title: "",
+        contents: JSON.stringify([]),
+        start_date: new Date().toISOString(),
+        end_date: new Date().toISOString(),
+      }),
+    onSuccess: (data) => {
+      // 최종 데이터
+      toast.success("데이터 추가 성공", {
+        description: "데이터 추가에 성공하였습니다",
+        duration: 3000,
+      });
+      router.push(`/create/${data.data.id}`);
     },
     onError: (error) => {
-      console.log("Error : 데이터 추가 실패함.");
+      toast.error("데이터 추가 실패", {
+        description: `데이터 추가에 실패하였습니다. ${error.message}`,
+        duration: 3000,
+      });
+    },
+  });
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.container_onBoarding}>
+        <span className={styles.container_onBoarding_title}></span>
+        <div className={styles.container_onBoarding_steps}>
+          <span>1. Create a page</span>
+          <span>2. Add boards to page</span>
+        </div>
+        {/* 페이지 추가 버튼 */}
+        <Button
+          variant={"outline"}
+          className="w-full bg-transparent text-orange-500 border-orange-400 hover:bg-orange-50 hover:text-orange-500"
+          disabled={createMutaion.isPending}
+          onClick={() => createMutaion.mutate()}
+        >
+          {createMutaion.isPending ? "Add ..." : "Add New page"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export default Home;
+```
+
+- /src/app/(with-side)/create/[id]/page.tsx
+
+```tsx
+"use client";
+import { useParams, useRouter } from "next/navigation";
+// nanoid
+import { nanoid } from "nanoid";
+// scss
+import styles from "@/app/(with-side)/create/[id]/page.module.scss";
+// action
+import {
+  deleteTodo,
+  getTodoId,
+  updateTodoId,
+  updateTodoIdTitle,
+} from "@/app/actions/todos-action";
+// component
+import BasicBoard from "@/components/common/board/BasicBoard";
+// shadcn/ui
+import LabelCalendar from "@/components/common/calendar/LabelCalendar";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import Image from "next/image";
+import { ChevronLeftIcon } from "lucide-react";
+import { useAtom } from "jotai";
+import { sidebarStateAtom } from "@/app/store";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/providers/ReactQueryProvider";
+
+// contents 배열에 대한 타입 정의
+interface BoardContent {
+  isCompleted: boolean;
+  title: string;
+  content: string;
+  startDate: string | Date;
+  endDate: string | Date;
+  boardId: string; // 랜던함 아이디를 생성해줄 예정
+}
+
+function Page() {
+  // jotai 상태 사용하기
+  const [sidebarState, setSideState] = useAtom(sidebarStateAtom);
+
+  const router = useRouter();
+  const { id } = useParams();
+  // 데이터 출력 state
+  const [title, setTitle] = useState<string>("");
+  const [contents, setContents] = useState<BoardContent[]>([]);
+  const [startDate, setStarDate] = useState<undefined | Date>(new Date());
+  const [endDate, setEndDate] = useState<undefined | Date>(new Date());
+  // Progress Bar 처리
+  const [completeCount, setCompleteCount] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
+
+  // id 에 해당하는 Row 데이터를 읽어오기
+  const {
+    error,
+    data: queryData,
+    isSuccess,
+  } = useQuery({
+    queryKey: ["todos"],
+    queryFn: () => getTodoId(Number(id)),
+  });
+
+  // Page 삭제 함수
+  const deleteBoardMutaion = useMutation({
+    mutationFn: () => {
+      return deleteTodo(Number(id));
+    },
+    onSuccess: () => {
+      setSideState("delete");
+    },
+    onError: (error) => {
       console.log(error.message);
     },
   });
 
+  // 타이틀 저장 함수
+  const saveTitleMuation = useMutation({
+    mutationFn: () => {
+      return updateTodoIdTitle(Number(id), title, startDate, endDate);
+    },
+    onSuccess: () => {
+      // jotai의 State 갱신
+      setSideState("titleChange");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  // 컨텐츠 삭제 함수
+  const deleteContentMutaion = useMutation({});
+  const deleteContent = async (deleteBoardId: string) => {
+    // console.log("삭제할 컨텐츠 boardId ", deleteBoardId);
+    const tempConentArr = contents.filter(
+      (item) => item.boardId !== deleteBoardId
+    );
+    // 서버에 Row 를 업데이트 합니다.
+    const { data, error, status } = await updateTodoId(
+      Number(id),
+      JSON.stringify(tempConentArr)
+    );
+
+    // fetchGetTodoId();
+    queryClient.refetchQueries({ queryKey: ["todos"] });
+  };
+
+  // 컨텐츠 데이터 업데이트 함수
+  const updateContentMutaion = useMutation({});
+  const updateContent = async (newData: BoardContent) => {
+    // console.log("최종전달 ", newData);
+
+    const newContentArr = contents.map((item) => {
+      if (item.boardId === newData.boardId) {
+        return newData;
+      }
+      return item;
+    });
+    // 서버에 Row 를 업데이트 합니다.
+    const { data, error, status } = await updateTodoId(
+      Number(id),
+      JSON.stringify(newContentArr)
+    );
+
+    // fetchGetTodoId();
+    queryClient.refetchQueries({ queryKey: ["todos"] });
+  };
+
+  // contents 의 isCompleted 가 true 인 갯수 파악하기
+  const calcCompletedCount = (gogo: BoardContent[]) => {
+    const arr = gogo.filter((item) => item.isCompleted === true);
+    // console.log("count : ", arr.length);
+    setCompleteCount(arr.length);
+    setTotalCount((arr.length / gogo.length) * 100);
+  };
+
+  // 컨텐츠 추가하기
+  const initData: BoardContent = {
+    boardId: nanoid(),
+    title: "",
+    content: "",
+    startDate: new Date().toISOString(),
+    endDate: new Date().toISOString(),
+    isCompleted: false,
+  };
+
+  const onCreateContentMutaion = useMutation({});
+  const onCreateContent = async (newData: BoardContent) => {
+    const addContent = newData;
+    // 기본으로 추가될 내용
+
+    const updateContent = [...contents, addContent];
+    // console.log("updateContent : ", updateContent);
+    // 서버에 Row 를 업데이트 합니다.
+    const { data, error, status } = await updateTodoId(
+      Number(id),
+      JSON.stringify(updateContent)
+    );
+
+    // 에러 발생시
+    if (error) {
+      toast.error("데이터 컨텐츠 업데이트 실패", {
+        description: `데이터 컨텐츠 업데이트에 실패하였습니다. ${error.message}`,
+        duration: 3000,
+      });
+      return;
+    }
+    // 최종 데이터
+    toast.success("데이터 컨텐츠 업데이트 성공", {
+      description: "데이터 컨텐츠 업데이트에 성공하였습니다",
+      duration: 3000,
+    });
+
+    // 자료 새로 후출
+    // fetchGetTodoId();
+    queryClient.refetchQueries({ queryKey: ["todos"] });
+  };
+
+  if (error) {
+    toast.error("데이터 호출 실패", {
+      description: `데이터 호출에 실패하였습니다. ${error.message}`,
+      duration: 3000,
+    });
+
+    return <div>데이터 호출에 실패하였습니다.</div>;
+  }
+
+  if (queryData) {
+    // 최종 데이터
+    toast.success("데이터 호출 성공", {
+      description: "데이터 호출에 성공하였습니다",
+      duration: 3000,
+    });
+  }
+
+  useEffect(() => {
+    // jotai의 State 갱신
+    setSideState("add Page");
+    if (queryData) {
+      setTitle(queryData.data?.title ? queryData.data.title : "");
+      setStarDate(
+        queryData.data?.start_date
+          ? new Date(queryData.data.start_date)
+          : new Date()
+      );
+      setEndDate(
+        queryData.data?.end_date
+          ? new Date(queryData.data.end_date)
+          : new Date()
+      );
+      const temp = queryData.data?.contents
+        ? JSON.parse(queryData.data.contents as string)
+        : [];
+      setContents(temp);
+      calcCompletedCount(temp);
+    }
+  }, [queryData]);
+
   return (
-    <div>
-      <h1>Test Todo</h1>
-      <div className="border">
-        <input
-          type="text"
-          value={testInput}
-          onChange={(e) => setTestInput(e.target.value)}
-        />
-        <Button
-          disabled={createMutaion.isPending}
-          onClick={() => createMutaion.mutate()}
-        >
-          {createMutaion.isPending ? "추가중 .." : "할일 추가"}
-        </Button>
-      </div>
-      <div>
-        <button onClick={() => refetch()}>다시호출</button>
-      </div>
-      {isLoading && <div>데이터 로딩중 ...</div>}
-      {error && <div>Error : {error.message} </div>}
-      {data && (
-        <div>
-          {data.map((item, index) => (
-            <div key={index}>{item}</div>
-          ))}
+    <div className={styles.container}>
+      {/* board 메뉴 */}
+      <div className="absolute flex w-full items-center justify-center p-3">
+        <div className="flex-1">
+          <Button variant={"outline"} onClick={() => router.push("/")}>
+            <ChevronLeftIcon className="w-4 h-4" />
+          </Button>
         </div>
-      )}
+        <div className="flex gap-2">
+          <Button
+            variant={"outline"}
+            disabled={saveTitleMuation.isPending}
+            onClick={() => saveTitleMuation.mutate()}
+          >
+            {saveTitleMuation.isPending ? "저장중 ..." : "저장"}
+          </Button>
+          <Button
+            variant={"outline"}
+            disabled={deleteBoardMutaion.isPending}
+            onClick={() => deleteBoardMutaion.mutate()}
+          >
+            {deleteBoardMutaion.isPending ? "삭제중..." : "삭제"}
+          </Button>
+        </div>
+      </div>
+      {/* 상단 */}
+      <header className={styles.container_header}>
+        <div className={styles.container_header_contents}>
+          <input
+            type="text"
+            placeholder="Enter Title Here"
+            className={styles.input}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          {/* 진행율 */}
+          <div className={styles.progressBar}>
+            <span className={styles.progressBar_status}>
+              {completeCount}/{contents.length} completed!
+            </span>
+            {/* Progress 컴포넌트 배치 */}
+            <Progress
+              value={totalCount}
+              className="w-[30%] h-2"
+              indicateColor="bg-orange-500"
+            />
+          </div>
+          {/* 캘린더 선택 추가 */}
+          <div className={styles.calendarBox}>
+            <div className={styles.calendarBox_calendar}>
+              <LabelCalendar
+                label="From"
+                required={false}
+                selectedDate={startDate}
+                onDateChange={setStarDate}
+              />
+              <LabelCalendar
+                label="To"
+                required={false}
+                selectedDate={endDate}
+                onDateChange={setEndDate}
+              />
+            </div>
+            <Button
+              variant={"outline"}
+              className="w-[15%] text-white bg-orange-400 border-orange-500 hover:bg-orange-400 hover:text-white cursor-pointer"
+              onClick={() => onCreateContent(initData)}
+            >
+              Add New Board
+            </Button>
+          </div>
+        </div>
+      </header>
+      {/* 본문 */}
+      <div className={styles.container_body}>
+        {/* conents 배열의 개수 만큼 출력이 되어야 함. */}
+        {contents.length == 0 ? (
+          <div className={styles.container_body_infoBox}>
+            <span className={styles.title}>There is no board yet. </span>
+            <span className={styles.subTitle}>
+              Click the button and start flashing!
+            </span>
+            <button
+              className={styles.button}
+              onClick={() => onCreateContent(initData)}
+            >
+              <Image
+                src="/assets/images/round-button.svg"
+                alt="add board"
+                width={100}
+                height={100}
+              />
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-start w-full h-full gap-4 overflow-y-scroll">
+            {contents.map((item) => (
+              <BasicBoard
+                key={item.boardId}
+                item={item}
+                updateContent={updateContent}
+                deleteContent={deleteContent}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default Page;
-```
-
-### 6.1. onSuccess : 성공 후 실행 함수
-
-```tsx
-// 데이터 추가하기
-const createMutaion = useMutation({
-  onSuccess: () => {
-    setTestInput("");
-    refetch();
-  },
-});
-```
-
-### 6.2. onError : 실패시 실행될 함수
-
-```tsx
-// 데이터 추가하기
-const createMutaion = useMutation({
-  onError: (error) => {
-    console.log("Error : 데이터 추가 실패함.");
-    console.log(error.message);
-  },
-});
-```
-
-### 6.3. onSettled : 성공, 실패 상관없이 무조건 실행
-
-```tsx
-// 데이터 추가하기
-const createMutaion = useMutation({
-  onSettled: () => {
-    console.log("무조건 처리해야 하는 함수");
-  },
-});
-```
-
-### 6.4. mutateAsync 비동기 실행
-
-```tsx
-// mutateAsync 비동기 실행 예제
-const mutaion = useMutation({
-  mutationFn: createTodos,
-});
-```
-
-```tsx
-const handleAdd = async () => {
-  try {
-    const now = await mutaion.mutateAsync("추가요");
-    console.log("데이터", now);
-    queryClient.refetchQueries({ queryKey: ["uniq"] });
-  } catch (error) {
-    console.log(error);
-  }
-};
-```
-
-```tsx
-<div>
-  <Button onClick={() => handleAdd()}>테스트</Button>
-</div>
 ```
