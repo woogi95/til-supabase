@@ -5,6 +5,7 @@ import { BlogsRow, deleteBlog, getBlogs } from "@/app/actions/blog-action";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Metadata } from "next";
 
 function Page() {
   const router = useRouter();
