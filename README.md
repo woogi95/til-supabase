@@ -92,3 +92,38 @@ export default eslintConfig;
 # 구글 로그인 후 RedirectURL 설정
 
 - https://cloud.google.com/developers?hl=ko
+- `콘솔`
+- `프로젝트` 선택
+- `API 및 서비스` > `OAuth 동의화면 ` > `클라이언트` > `목록 중 해당 프로젝트` 선택
+- 승인된 리디렉션 URI 항목에 추가 (`https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/`)
+
+# 네이버 서치 어드바이저 등록하기
+
+- https://searchadvisor.naver.com/
+- 웹마스터 도구 클릭 (https://searchadvisor.naver.com/console/board)
+- `사이트 소유확인` 페이지로 이동
+- html 태그 복사
+
+```html
+<meta
+  name="naver-site-verification"
+  content="fd00fff59dc3c824fac8dc747d56bb3a08f62b6e"
+/>
+```
+
+- /src/app/layout.tsx
+
+```tsx
+export const metadata: Metadata = {
+  title: "Todo",
+  description: "Todo Supabase",
+  openGraph: {
+    title: "Todo",
+    description: "Todo Supabase",
+    images: [{ url: "/thumbnail.png" }],
+  },
+  other: {
+    "naver-site-verification": "fd00fff59dc3c824fac8dc747d56bb3a08f62b6e",
+  },
+};
+```
