@@ -11,6 +11,9 @@ const Page = () => {
   const [date, setDate] = useState<string>("");
   const { id } = useParams();
   const router = useRouter();
+  useEffect(() => {
+    fetchgetBlogId(id as string);
+  }, []);
   const fetchgetBlogId = async (_id: string) => {
     const { data, error, status } = await getBlogId(Number(_id));
     if (data) {
@@ -26,9 +29,6 @@ const Page = () => {
       router.push(`/blog`);
     }
   };
-  useEffect(() => {
-    fetchgetBlogId(id as string);
-  }, []);
   return (
     <div className="w-[920px] h-screen bg-[#f9f9f9] border-r border-[#d6d6d6] flex items-start justify-center">
       <div className="w-full flex flex-col p-4">
