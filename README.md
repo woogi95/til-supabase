@@ -170,3 +170,12 @@ Sitemap: https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/si
 ## 웹마스터 도구 > 간단 체크 > `url 입력`
 
 # 구글 서치 등록하기
+
+- https://search.google.com/search-console/about
+
+```html
+<meta
+  name="google-site-verification"
+  content="DGOHRIFNYLbLhXJq4cSUnbit_myyML5aEvgC0getwbo"
+/>
+```
