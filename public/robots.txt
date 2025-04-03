@@ -6,4 +6,4 @@ Allow: /
 Host: https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/
 
 # Sitemaps
-Sitemap: https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/
+Sitemap: https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/sitemap.xml

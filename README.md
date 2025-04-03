@@ -148,7 +148,10 @@ Sitemap: https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/si
 ## /public/sitemap.xml 파일 생성
 
 ```xml
-https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemap><loc>https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/sitemap-0.xml</loc></sitemap>
+</sitemapindex>
 ```
 
 ## /public/sitemap-0.xml 파일 생성
@@ -161,3 +164,9 @@ https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app
 <url><loc>https://til-supabase-git-22-vercel-dongwook-seos-projects.vercel.app/todos</loc><lastmod>2023-09-11T23:52:17.732Z</lastmod><changefreq>todos</changefreq><priority>0.7</priority></url>
 </urlset>
 ```
+
+## git push 이후 robots.txt 수집 요청
+
+## 웹마스터 도구 > 간단 체크 > `url 입력`
+
+# 구글 서치 등록하기
